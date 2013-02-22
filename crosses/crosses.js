@@ -664,7 +664,8 @@ $(document).ready(function(){
             .find('input')
               .val();
         Player.saveName(name);
-        Controller.start();
+        Controller.start(1);
+        $('#startPrompt button.back').trigger('click');
         break;
       case 'play':
         var user = Storage.getData('user');
@@ -730,6 +731,9 @@ $(document).ready(function(){
       case 'next':
         Stats.makeTotalPoints();
         Controller.start();
+        break;
+      case 'menu':
+        $('#fancyBox').trigger('click');
         break;
     }
   });
