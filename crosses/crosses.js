@@ -3,12 +3,12 @@
     id: false,
     saveName: function(name) {
       Player.name = name;
-      $.post('crosses/createUser', {name: name}, function(data) {
-        Player.id = data;
-        var user = {id: data, name: Player.name};
-        Storage.saveData('user', user);
-        Player.setDataPlayer();
-      }, 'json');
+      // $.post('crosses/createUser', {name: name}, function(data) {
+      //   Player.id = data;
+      //   var user = {id: data, name: Player.name};
+      //   Storage.saveData('user', user);
+      //   Player.setDataPlayer();
+      // }, 'json');
     },
     useUser: function(user) {
       Player.checkUser(user);
@@ -18,12 +18,12 @@
         .prepend('<tr><td>Player:</td><td><i>' + Player.name + '</i></td></tr>');
     },
     checkUser: function(user) {
-      $.post('crosses/checkUser', user, function(data) {
-        Player.name = data.name;
-        Player.id = data.id;
-        Storage.saveData('user', data);
-        Player.setDataPlayer();
-      }, 'json');
+      // $.post('crosses/checkUser', user, function(data) {
+      //   Player.name = data.name;
+      //   Player.id = data.id;
+      //   Storage.saveData('user', data);
+      //   Player.setDataPlayer();
+      // }, 'json');
 
     }
   };
@@ -284,164 +284,6 @@
         .addClass('worm')
         .html(sign);
     },
-    getAiPositionsExtra: function() {
-    },
-    moveAiValidate: function(position) {
-      return position <= Cross.horizontal * Cross.vertical && position > 0;
-    },
-    getMoveAiPositionLevelTwo: function(currentPosition) {
-      var column = currentPosition % Cross.horizontal || Cross.horizontal;
-      var row = (currentPosition - column)/Cross.horizontal + 1;
-      var moveDimension = Cross.horizontal > Cross.vertical ? Cross.horizontal : Cross.vertical;
-
-      var positions = {
-        top: false,
-        bottom: false,
-        right: false,
-        left: false,
-        tright: [],
-        bright: [],
-        bleft: [],
-        tleft: []
-      };
-
-      for (var i = 1; i <= moveDimension; i++) {
-        var position = false;
-        positions.top = Cross.getVerticalPosition(currentPosition, -i);
-        positions.bottom = Cross.getVerticalPosition(currentPosition, i);
-        positions.right = Cross.getHorizontalPosition(currentPosition, i);
-        positions.left = Cross.getHorizontalPosition(currentPosition, -i);
-
-        for (var k = 0; k <= i; k++) {
-          var line = false;
-          // //top right horizontal
-          if (positions.top) {
-            position = positions.top+k;
-            line = positions.top % Cross.horizontal;
-            if (Cross.moveAiValidate(position) && line+k <= Cross.horizontal) {
-              positions.tright.push(position);
-            }
-          }
-          //top right vertical
-          if (positions.right) {
-            position = positions.right-Cross.horizontal*k;
-            if (Cross.moveAiValidate(position)) {
-              positions.tright.push(position);
-            }
-          }
-
-          // //botom right horizontal
-          if (positions.bottom) {
-            position = positions.bottom+k;
-            line = positions.bottom % Cross.horizontal;
-            if (Cross.moveAiValidate(position) && line+k <= Cross.horizontal) {
-              positions.bright.push(position);
-            }
-          }
-          //botom right vertical
-          if (positions.right) {
-            position = positions.right+Cross.horizontal*k;
-            if (Cross.moveAiValidate(position)) {
-              positions.bright.push(position);
-            }
-          }
-          //bottom left horizontal
-          if (positions.bottom) {
-            position = positions.bottom-k;
-            line = positions.bottom % Cross.horizontal;
-            if (Cross.moveAiValidate(position) && line-k > 0) {
-              positions.bleft.push(position);
-            }
-          }
-          //botom left vertical
-          if (positions.left) {
-            position = positions.left+Cross.horizontal*k;
-            if (Cross.moveAiValidate(position)) {
-              positions.bleft.push(position);
-            }
-          }
-          //top left horizontal
-          if (positions.top) {
-            position = positions.top-k;
-            line = positions.top % Cross.horizontal;
-            if (Cross.moveAiValidate(position) && line-k > 0) {
-              positions.tleft.push(position);
-            }
-          }
-          //top left vertical
-          if (positions.left) {
-            position = positions.left-Cross.horizontal*k;
-            if (Cross.moveAiValidate(position)) {
-              positions.tleft.push(position);
-            }
-          }
-        }
-      }
-
-
-      return positions;
-    },
-    getSidesItems: function(positions, side) {
-      var items = {
-        tleft: [],
-        tright: [],
-        bleft: [],
-        bright: []
-      };
-
-      var directions = ['tleft', 'tright', 'bleft', 'bright'];
-      $.each(directions, function(key, value) {
-        var unique =  positions[value].filter(function(elem, pos) {
-            return positions[value].indexOf(elem) == pos;
-        });
-        $.each(unique, function(k, v) {
-          var $td = $('table#crosses')
-            .find('td[data-number="'+v+'"]')
-              .not('.clicked')
-              .not('.worm');
-
-          if ($td.data('buble')) {
-            items[value].push($td.data());
-          }
-        });
-      });
-
-      if (side) {
-        return items[side];
-      }
-      return items;
-
-    },
-    getMoveAiPositionLogicLevelTwo: function(positions, currentPosition) {
-      var side = Ai.getSide();
-      if (side) {
-        return Cross.getSideItem(Cross.getSidesItems(positions, side), currentPosition);
-      }
-      var position = false;
-      var counts = [];
-
-      var directions = ['tleft', 'tright', 'bleft', 'bright'];
-      $.each(directions, function(key, value) {
-        counts.push(items[value].length);
-      });
-
-      var max = counts.indexOf(Math.max.apply(window, counts));
-      side = directions[max-1];
-      Ai.setSide(side);
-      return Cross.getSideItem(Cross.getSidesItems(positions, side), currentPosition);
-    },
-    getSideItem: function(items, currentPosition) {
-      var position = false;
-      for (var i = 0; i < 5; i++) {
-        position = Cross.getMoveAiPositionLevelOne(currentPosition, 1);
-        if ($.inArray(position, items)) {
-          return position;
-        }
-      }
-
-      console.log('suds');
-      return position;
-    },
     getMoveAiPositionLogicLevelOne: function(positions) {
       var position = false;
       var tdArray = [];
@@ -503,17 +345,6 @@
     getMoveAiPosition: function(currentPosition, level) {
       var crossPositions = Cross.getMoveAiPositionLevelOne(currentPosition);
       var position = Cross.getMoveAiPositionLogicLevelOne(crossPositions);
-      switch(level) {
-        case 1:
-          break;
-        case 2:
-          if (!position) {
-            var positionsLT = Cross.getMoveAiPositionLevelTwo(currentPosition);
-            console.log(positionsLT);
-            position = Cross.getMoveAiPositionLogicLevelTwo(positionsLT, currentPosition);
-          }
-          break;
-      }
 
       if (!position) {
         position = Cross.getMoveAiPositionAnyway(crossPositions);
@@ -617,10 +448,11 @@
         user_id: Player.id
       };
 
-      $.post('crosses/results', data, function(response) {
-        Stats.id = response.id;
-        Stats.renderStats(response);
-      }, "json");
+      Stats.renderStats({});
+      // $.post('crosses/results', data, function(response) {
+      //   Stats.id = response.id;
+      //   Stats.renderStats(response);
+      // }, "json");
     },
     renderStats: function(response) {
       var level = Controller.level;
@@ -731,7 +563,6 @@
       Stats.start(Controller.level);
     },
     end: function() {
-      var data = [];
       console.log('The end', Stats.stats);
     },
     actionButtons: function() {
@@ -755,7 +586,7 @@
     currentPosition: false,
     speed: false,
     sign: '&#8855;',
-    level: 2,
+    level: 1,
     side: false,
     start: function(data, startPosition) {
       Ai.currentPosition = startPosition;
