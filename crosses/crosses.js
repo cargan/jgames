@@ -417,6 +417,59 @@
 
   };
 
+
+//code reused https://www.firebase.com/tutorial/ - Leaderboard example
+  var FBStats = {
+    link: 'https://jgames.firebaseio.com/crosses/',
+    ref: undefined,
+    scoreListView: undefined,
+    limit: 10,
+    htmlForPath: {},
+    init: function() {
+      FBStats.ref = new Firebase(FBStats.link);
+      FBStats.scoreListView = FBStats.ref.limit(FBStats.limit);
+
+      FBStats.scoreListView.on('child_added', function (newScoreSnapshot, prevScoreName) {
+        FBStats.handleScoreAdded(newScoreSnapshot, prevScoreName);
+      });
+
+      FBStats.scoreListView.on('child_removed', function (oldScoreSnapshot) {
+        FBStats.handleScoreRemoved(oldScoreSnapshot);
+      });
+
+      var changedCallback = function (scoreSnapshot, prevScoreName) {
+        FBStats.handleScoreRemoved(scoreSnapshot);
+        FBStats.handleScoreAdded(scoreSnapshot, prevScoreName);
+      };
+      FBStats.scoreListView.on('child_moved', changedCallback);
+      FBStats.scoreListView.on('child_changed', changedCallback);
+    },
+    handleScoreAdded: function(scoreSnapshot, prevScoreName) {
+      var newScoreRow = $("<tr/>");
+      newScoreRow.append($("<td/>").append($("<em/>").text(scoreSnapshot.val().name)));
+      newScoreRow.append($("<td/>").text(scoreSnapshot.val().score));
+
+      FBStats.htmlForPath[scoreSnapshot.name()] = newScoreRow;
+
+      if (prevScoreName === null) {
+        $("#dataScores").append(newScoreRow);
+      }
+      else {
+        var lowerScoreRow = FBStats.htmlForPath[prevScoreName];
+        lowerScoreRow.before(newScoreRow);
+      }
+    },
+    handleScoreRemoved: function(scoreSnapshot) {
+      var removedScoreRow = FBStats.htmlForPath[scoreSnapshot.name()];
+      removedScoreRow.remove();
+      delete FBStats.htmlForPath[scoreSnapshot.name()];
+    },
+    addScore: function(score, name) {
+      var userScoreRef = FBStats.ref.child(name);
+      userScoreRef.setWithPriority({ name: name, score: score }, score);
+    }
+  };
+
   var Stats = {
     id: false,
     points: 0,
@@ -464,6 +517,7 @@
         .append('<tr class="points">' +
               '<td>Points: '+points+'</td><td>Place: '+response.place + '</td>' +
             '</tr>');
+      $.fancybox.hideLoading();
       Controller.actionButtons();
     },
     addPoints: function(bubleType) {
@@ -482,18 +536,7 @@
         .closest('#startPrompt')
           .find('.results')
             .show();
-
-      $.get('crosses/tops', {}, function(results) {
-        var tops = '';
-        $.each(results, function(key, value) {
-          tops += 'Player: <i>' + value.name + '</i> Points: ' + value.points + '<br />';
-        });
-
-        $('.results .data')
-          .html(tops);
-
-        $.fancybox.hideLoading();
-      }, 'json');
+      $.fancybox.hideLoading();
     }
   };
 
@@ -626,6 +669,7 @@
 
 $(document).ready(function(){
 
+  FBStats.init();
   //start fancybox
   $('#fancyBox').fancybox({
     autoSize: false,
