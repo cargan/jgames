@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Cross game  </title>
+    <link href="../favicon.ico" type="image/x-icon" rel="icon" />
+    <link href="../favicon.ico" type="image/x-icon" rel="shortcut icon" />
+    <link rel="stylesheet" type="text/css" href="crosses.css" />
+    <link rel="stylesheet" type="text/css" href="../js/fancybox/jquery.fancybox.css?v=2.1.4" media="screen" />
+</head>
+<body>
+  <div id="content">
+    <div id="data">
+      <button style="display: none;" class="restart">Restart</button>
+      <button style="display: none;" class="next">Next</button>
+    </div>
+
+    <table id="crosses"></table>
+    <table class="data"></table>
+
+    <div id="stats" style="display: none;">
+      <span id="points"></span>
+      <span id="timer"></span>
+    </div>
+
+
+    <a style="display: none" href="#startPrompt" id="fancyBox"></a>
+    <div id="startPrompt" style="display:none;">
+      <div class="buttons">
+        <button class="play">PLAY</button><br />
+        <button class="rules">RULES</button><br />
+        <button class="results">HALL OF FAME</button>
+      </div>
+
+      <div style="display: none" id="playerName">
+        <b>CREATE PLAYER</b><br />
+        Player Name: <input type="text" />
+        <button disabled="disabled" class="start">Start</button>
+        <button class="back">Back</button>
+      </div>
+
+      <div style="display: none" class="rules">
+        <b>RULES</b><br />
+        <p>Collect all the items from board, before snake does! Time maters, be quick.</p>
+        <button class="back">Back</button>
+      </div>
+
+      <div style="display: none" class="results">
+        <b>HALL OF FAME</b><br />
+        <span class="data"></span>
+        <button class="back">Back</button>
+      </div>
+    </div>
+
+  </div>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+  </script>
+  <script type="text/javascript" src="../js/fancybox/jquery.fancybox.js?v=2.1.4"></script>
+  <script type="text/javascript" src="crosses.js"></script>
+</body>
+</html>
+

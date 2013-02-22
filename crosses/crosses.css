@@ -1,0 +1,12 @@
+table#crosses {border: 1px solid orange; float: left;}
+table#crosses tr td {width: 18px; height: 18px; border: 1px solid pink; vertical-align: middle; text-align: center;}
+table#crosses td.clicked { background: #eeeeee; }
+table#crosses td.clickable { cursor: hand; cursor: pointer; }
+table#crosses td.clickable.clicked { cursor: text ; }
+table#crosses td.activeWorm { background: orange !important; }
+table#crosses td.activeWorm.clickable { background: green !important; }
+table.data { float:left; width: 220px; margin-left: 25px; }
+#timer { margin-left: 25px; font-weight: bold; float: left; }
+table {border: 1px solid orange;}
+table tr td {width: 18px; height: 18px; border: 1px solid pink; vertical-align: middle; text-align: center;}
+
