@@ -1,30 +1,11 @@
   var Player = {
     name: false,
-    id: false,
     saveName: function(name) {
       Player.name = name;
-      // $.post('crosses/createUser', {name: name}, function(data) {
-      //   Player.id = data;
-      //   var user = {id: data, name: Player.name};
-      //   Storage.saveData('user', user);
-      //   Player.setDataPlayer();
-      // }, 'json');
-    },
-    useUser: function(user) {
-      Player.checkUser(user);
     },
     setDataPlayer: function() {
       $('table.data')
         .prepend('<tr><td>Player:</td><td><i>' + Player.name + '</i></td></tr>');
-    },
-    checkUser: function(user) {
-      // $.post('crosses/checkUser', user, function(data) {
-      //   Player.name = data.name;
-      //   Player.id = data.id;
-      //   Storage.saveData('user', data);
-      //   Player.setDataPlayer();
-      // }, 'json');
-
     }
   };
 
@@ -494,30 +475,18 @@
       Stats.points += levelConfig.levelPoints;
     },
     submit: function() {
-      var data = {
-        id: Stats.id,
-        points: Stats.points,
-        level: Controller.level,
-        user_id: Player.id
-      };
-
-      Stats.renderStats({});
-      // $.post('crosses/results', data, function(response) {
-      //   Stats.id = response.id;
-      //   Stats.renderStats(response);
-      // }, "json");
-    },
-    renderStats: function(response) {
-      var level = Controller.level;
       var points = Stats.points + Stats.totalPoints;
+      FBStats.addScore(points, Player.name);
+      Stats.renderStats(points);
+    },
+    renderStats: function(points) {
       $('table.data')
         .find('tr.points')
           .remove()
         .end()
         .append('<tr class="points">' +
-              '<td>Points: '+points+'</td><td>Place: '+response.place + '</td>' +
+              '<td>Points: '+points+'</td>' +
             '</tr>');
-      $.fancybox.hideLoading();
       Controller.actionButtons();
     },
     addPoints: function(bubleType) {
