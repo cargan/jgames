@@ -256,13 +256,13 @@
           position = rand;
         }
       }
-
       return position;
     },
     renderAi: function(position, sign) {
       $('table#crosses')
         .find('td[data-number="'+position+'"]')
         .addClass('worm')
+        .addClass('clicked')
         .html(sign);
     },
     getMoveAiPositionLogicLevelOne: function(positions) {
