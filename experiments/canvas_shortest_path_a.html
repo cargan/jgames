@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+        <title>Canvas_shortest_path_a</title>
+    </head>
+    <body>
+
+      <canvas height="200" width="200" style="float:left;margin-right:10px" id="canvas"></canvas>
+      <div>
+
+  <input id="diagonals" onclick="draw()" type="checkbox">Allow diagonals<br>
+  <input id="diagonalcost" onclick="draw()" type="checkbox">Tweak diagonal cost<br>
+  <input id="badSorting" onclick="draw()" checked="yes" type="checkbox">Prefer new nodes<br>
+  <input id="dotTiebreaker" onclick="draw()" type="checkbox">Dot product tie breaker<br><br>
+  <input onclick="clearMap()" value="Clear" type="button"><input onclick="randomMap()" value="Random" type="button"><br><br>
+  <table style="font-family:'Lucida Grande', Verdana, Arial, Sans-Serif;font-size:12px"><tbody><tr><td>
+  Path length:</td><td><span id="pathlength">31</span></td></tr>
+  <tr><td>Nodes searched:</td><td><span id="nodes">156</span></td></tr></tbody></table>
+
+      </div>
+
+     <script type="text/javascript" src="canvas_shortest_path_a.js"></script>
+     <script type="text/javascript" src="canvas_shortest_path_a_implementation.js"></script>
+
+        <script type="text/javascript" charset="utf-8">
+          init();
+
+        </script>
+
+    </body>
+</html>
