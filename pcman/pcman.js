@@ -187,19 +187,19 @@ var Player = {
       Cross.table = $('#'+table);
     },
     start: function(data) {
-      Cross.reset();
+      Cross._reset();
       Cross._setValues(data);
-      Cross.generateTable();
-      Cross.renderBubles(Bubles.getBubles());
+      Cross._generateTable();
+      Cross._renderBubles(Bubles.getBubles());
     },
     _setValues: function(data) {
       Cross.vertical = data.vertical;
       Cross.horizontal = data.horizontal;
     },
-    reset: function() {
+    _reset: function() {
       Cross.filled = {};
     },
-    generateTable: function() {
+    _generateTable: function() {
       for (var i=1; i<=Cross.horizontal;i++) {
         var $tr = $(document.createElement('tr'));
         for (var k=1; k<=Cross.vertical;k++) {
@@ -212,20 +212,20 @@ var Player = {
           .append($tr);
       }
     },
-    renderBubles: function(bubles){
+    _renderBubles: function(bubles){
       var squares = Cross.vertical * Cross.horizontal;
       $.each(bubles, function(key, value) {
         for (var i=1;i<=value.number;) {
           var random = getRandomInt(1, squares);
           if (Cross.filled[random] === undefined) {
             Cross.filled[random] = key;
-            Cross.render(random, key, value.sign);
+            Cross._render(random, key, value.sign);
             i++;
           }
         }
       });
     },
-    render: function(number, bubleType, sign) {
+    _render: function(number, bubleType, sign) {
       $(Cross.table)
         .find('td[data-number="'+number+'"]')
         .addClass('clickable')
@@ -268,6 +268,7 @@ var Player = {
         Cross.table
         .find('td[data-number="'+position+'"]')
         .addClass('worm')
+        .addClass('activeWorm')
         .addClass('clicked')
         .html(sign);
     },
@@ -341,7 +342,7 @@ var Player = {
     },
     moveAi: function(oldPosition, position, sign) {
         Cross.table
-        .find('td[data-number="'+oldPosition+'"]')
+        .find('td.activeWorm')
         .removeClass('activeWorm')
         .html('');
 
@@ -353,6 +354,7 @@ var Player = {
           .removeAttr('data-buble')
           .addClass('clicked')
           .addClass('worm')
+          .addClass('activeWorm')
           .html(sign);
         Cross.checkBublesLeft();
       } else {

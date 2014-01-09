@@ -16,7 +16,7 @@ table#gameBoard tr td {
     text-align: center;
     background: orange;
 }
-table#gameBoard tr td.worm.activeWorm{
+table#gameBoard tr td.worm.activeWorm {
     background: yellow;
 }
 div#data {
