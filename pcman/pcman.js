@@ -11,145 +11,178 @@ var Player = {
   }
 };
 
-  var LevelsConfig = {
-    config: [
-    {
-      name: 'first',
-      levelPoints: 5,
-      ai: {
-        speed: 3
-      },
-      bubles: {
-        bubles: {
-          simple: {
-            number: 4,
-            sign: '&#x2318;',
-            points: 1
-          },
-          extra: {
-            number: 1,
-            sign: '&#x2325;',
-            points: 2
-          }
-        }
-      },
-      cross: {
-        vertical: 6,
-        horizontal: 6
-      },
-      timer: {
-        seconds: 10
-      }
+//player :)
+var PcMan = {
+    currentPosition: false,
+    sign: '&#9824;',
+    identifier: 'pcman',
+    start: function(position) {
+        PcMan.currentPosition = position;
+        Cross.renderItem(
+            PcMan.currentPosition,
+            PcMan.sign,
+            PcMan.identifier
+        );
     },
-    {
-      name: 'second',
-      levelPoints: 8,
-      ai: {
-        speed: 2
-      },
-      bubles: {
-        bubles: {
-          simple: {
-            number: 7,
-            sign: '&#x2318;',
-            points: 1
-          },
-          extra: {
-            number: 2,
-            sign: '&#x2325;',
-            points: 2
-          }
-        }
-      },
-      cross: {
-        vertical: 7,
-        horizontal: 7
-      },
-      timer: {
-        seconds: 20
-      }
-    },
-    {
-      name: 'third',
-      levelPoints: 10,
-      ai: {
-        speed: 3
-      },
-      bubles: {
-        bubles: {
-          simple: {
-            number: 12,
-            sign: '&#x2318;',
-            points: 1
-          },
-          extra: {
-            number: 4,
-            sign: '&#x2325;',
-            points: 2
-          },
-          duper: {
-            number: 1,
-            sign: '&#8734;',
-            points: 3
-          }
+    moveItem: function(code) {
+        var directions = {
+            37: 'left',
+            38: 'up',
+            39: 'right',
+            40: 'down'
+        };
 
+        var currentP = Cross.moveItemDirection(
+            PcMan.currentPosition,
+            directions[code],
+            PcMan.sign,
+            PcMan.identifier
+        );
+        if (currentP) {
+            PcMan.currentPosition = currentP;
         }
-      },
-      cross: {
-        vertical: 10,
-        horizontal: 10
-      },
-      timer: {
-        seconds: 30
-      }
-    },
-    {
-      name: 'fourth',
-      levelPoints: 15,
-      ai: {
-        speed: 3
-      },
-      bubles: {
-        bubles: {
-          simple: {
-            number: 16,
-            sign: '&#x2318;',
-            points: 1
-          },
-          extra: {
-            number: 8,
-            sign: '&#x2325;',
-            points: 2
-          },
-          duper: {
-            number: 3,
-            sign: '&#8734;',
-            points: 3
-          }
-        }
-      },
-      cross: {
-        vertical: 12,
-        horizontal: 12
-      },
-      timer: {
-        seconds: 60
-      }
     }
-    ],
-    getLevel: function(level) {
-      return LevelsConfig.config[level-1];
-    },
-    getNumberOfBubles: function(level) {
-      var bubles = LevelsConfig.config[level-1].bubles.bubles;
-      var bublesCount = 0;
-      $.each(bubles, function(key, value) {
-        bublesCount += value.number;
-      });
+};
 
-      return bublesCount;
+var LevelsConfig = {
+  config: [
+  {
+    name: 'first',
+    levelPoints: 5,
+    ai: {
+      speed: 2
+    },
+    bubles: {
+      bubles: {
+        simple: {
+          number: 4,
+          sign: '&#x2318;',
+          points: 1
+        },
+        extra: {
+          number: 1,
+          sign: '&#x2325;',
+          points: 2
+        }
+      }
+    },
+    cross: {
+      vertical: 16,
+      horizontal: 11
+    },
+    timer: {
+      seconds: 20
     }
-  };
+  },
+  {
+    name: 'second',
+    levelPoints: 8,
+    ai: {
+      speed: 2
+    },
+    bubles: {
+      bubles: {
+        simple: {
+          number: 7,
+          sign: '&#x2318;',
+          points: 1
+        },
+        extra: {
+          number: 2,
+          sign: '&#x2325;',
+          points: 2
+        }
+      }
+    },
+    cross: {
+      vertical: 7,
+      horizontal: 7
+    },
+    timer: {
+      seconds: 20
+    }
+  },
+  {
+    name: 'third',
+    levelPoints: 10,
+    ai: {
+      speed: 3
+    },
+    bubles: {
+      bubles: {
+        simple: {
+          number: 12,
+          sign: '&#x2318;',
+          points: 1
+        },
+        extra: {
+          number: 4,
+          sign: '&#x2325;',
+          points: 2
+        },
+        duper: {
+          number: 1,
+          sign: '&#8734;',
+          points: 3
+        }
+
+      }
+    },
+    cross: {
+      vertical: 10,
+      horizontal: 10
+    },
+    timer: {
+      seconds: 30
+    }
+  },
+  {
+    name: 'fourth',
+    levelPoints: 15,
+    ai: {
+      speed: 3
+    },
+    bubles: {
+      bubles: {
+        simple: {
+          number: 16,
+          sign: '&#x2318;',
+          points: 1
+        },
+        extra: {
+          number: 8,
+          sign: '&#x2325;',
+          points: 2
+        },
+        duper: {
+          number: 3,
+          sign: '&#8734;',
+          points: 3
+        }
+      }
+    },
+    cross: {
+      vertical: 12,
+      horizontal: 12
+    },
+    timer: {
+      seconds: 60
+    }
+  }
+  ],
+  getLevel: function(level) {
+    return LevelsConfig.config[level-1];
+  },
+  getNumberOfBubles: function(level) {
+    var bubles = LevelsConfig.config[level-1].bubles.bubles;
+    var bublesCount = 0;
+    $.each(bubles, function(key, value) {
+      bublesCount += value.number;
+    });
+
+    return bublesCount;
+  }
+};
 
   var Bubles = {
     speed: 0,
@@ -200,11 +233,11 @@ var Player = {
       Cross.filled = {};
     },
     _generateTable: function() {
-      for (var i=1; i<=Cross.horizontal;i++) {
+      for (var i=1; i<=Cross.vertical;i++) {
         var $tr = $(document.createElement('tr'));
-        for (var k=1; k<=Cross.vertical;k++) {
+        for (var k=1; k<=Cross.horizontal;k++) {
           var $td = $(document.createElement('td'));
-          var tdNumber = (i*Cross.horizontal - Cross.horizontal) + k;
+          var tdNumber = (i*Cross.vertical - Cross.vertical) + k;
           $td.attr('data-number', tdNumber);
           $tr.append($td);
         }
@@ -264,11 +297,11 @@ var Player = {
       }
       return position;
     },
-    renderAi: function(position, sign) {
+    renderItem: function(position, sign, item) {
         Cross.table
         .find('td[data-number="'+position+'"]')
-        .addClass('worm')
-        .addClass('activeWorm')
+        .addClass(item)
+        .addClass('active'+item.charAt(0).toUpperCase() + item.slice(1))
         .addClass('clicked')
         .html(sign);
     },
@@ -340,6 +373,36 @@ var Player = {
 
       return position;
     },
+    upperF: function(item) {
+        return item.charAt(0).toUpperCase() + item.slice(1);
+    },
+    moveItemDirection: function(position, direction, sign, item) {
+        var activeItem = 'td.active' + Cross.upperF(item);
+        var $td = Cross.table
+            .find(activeItem);
+        pp = false;
+        if (direction == 'left') {
+            pp = Cross.getHorizontalPosition(position, -1);
+        } else if (direction == 'right') {
+            pp = Cross.getHorizontalPosition(position, 1);
+        } else if (direction == 'up') {
+            pp = Cross.getVerticalPosition(position, -1);
+        } else {
+            //down
+            pp = Cross.getVerticalPosition(position, 1);
+        }
+        if (!pp) {
+            return false;
+        }
+
+        Cross.table
+            .find(activeItem)
+            .removeClass('active' + Cross.upperF(item))
+            .html('');
+
+        Cross.renderItem(pp, sign, item);
+        return pp;
+    },
     moveAi: function(oldPosition, position, sign) {
         Cross.table
         .find('td.activeWorm')
@@ -365,43 +428,29 @@ var Player = {
       }
     },
     getHorizontalPosition: function(position, move) {
-      var rowNumber = position % Cross.horizontal;
-      var target = position + move;
-      if (target > Cross.horizontal * Cross.vertical || target <= 0) {
-        target = false;
-      }
-      if (move > 0) {
-        if (rowNumber === 0 || (rowNumber + move) > Cross.horizontal) {
-          target = false;
+       // var rowNumber = Math.ceil((position - 1)/ Cross.horizontal);
+       var colNumber = ((position - 1) % Cross.vertical)+1;
+       var target = position + move;
+        if ( (move > 0) && (colNumber == Cross.horizontal) ) {
+            return false;
+        } else if ( (move < 0) && (colNumber == 1) ) {
+            return false;
         }
-      } else {
-        if (rowNumber <= Math.abs(move)) {
-          target = false;
-        }
-      }
 
-      return target;
+        return target;
     },
     getVerticalPosition: function(position, move) {
-      var columnNumber = position % Cross.vertical || Cross.horizontal;
-      var target = false;
-      if (move > 0) {
-        if (columnNumber !== Cross.vertical) {
-          target = position + Cross.horizontal * move;
-        } else {
-          target = position + Cross.horizontal * move;
-        }
-      } else {
-        if (columnNumber > 0) {
-          target = position + Cross.horizontal * move;
-        }
-      }
+       var rowNumber = Math.ceil((position)/ Cross.vertical);
+       // var colNumber = ((position - 1) % Cross.horizontal)+1;
+       var target = position + move * Cross.vertical;
 
-      if (target > Cross.horizontal * Cross.vertical || target <= 0) {
-        return false;
-      }
+        if ( (move > 0) && (rowNumber == Cross.vertical) ) {
+            return false;
+        } else if ( (move < 0) && (rowNumber == 1) ) {
+            return false;
+        }
 
-      return target;
+        return target;
     }
 
   };
@@ -506,6 +555,8 @@ var Player = {
 
   //basic object to controll app runing
   var Controller = {
+    started: false,
+    finished: false,
     level: false,
     start: function(level) {
       $('#stats')
@@ -526,11 +577,15 @@ var Player = {
       Cross.init(gameBoard);
       Cross.table.html('');
       Cross.start(levelConfig.cross);
+      PcMan.start(Cross.getEmptySquare());
       Ai.start(levelConfig.ai, Cross.getEmptySquare());
 
       Stats.start(Controller.level);
+      Controller.started = true;
+      Controller.finished = false;
     },
     end: function() {
+      Controller.finished = true;
       console.log('The end', Stats.stats);
     },
     actionButtons: function() {
@@ -560,8 +615,9 @@ var Player = {
       Ai.currentPosition = startPosition;
       Ai.currentPosition = 10;
       Ai.speed = data.speed;
-      Cross.renderAi(Ai.currentPosition, Ai.sign);
-      Ai.interval = setInterval(Ai.moveAi, Ai.speed * Ai.speedConst);
+//UNCOMENT FOR AI
+      // Cross.renderItem(Ai.currentPosition, Ai.sign, 'worm');
+      // Ai.interval = setInterval(Ai.moveAi, Ai.speed * Ai.speedConst);
     },
     moveAi: function() {
       var position = Cross.getMoveAiPosition(Ai.currentPosition, Ai.level);
@@ -700,10 +756,18 @@ $(document).ready(function(){
     Cross.click($(this));
   });
 
+    $('body').keydown(function(e) {
+        var keys = [37, 38, 39, 40];
+        if (Controller.started && !Controller.finished
+            && keys.indexOf(e.keyCode) != -1) {
+            PcMan.moveItem(e.keyCode);
+        }
+    });
+
 });
 
 function getRandomInt (min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 //UNUSED
 //code reused https://www.firebase.com/tutorial/ - Leaderboard example
