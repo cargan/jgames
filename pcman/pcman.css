@@ -5,3 +5,6 @@
 body {
     background: orange;
 }
+table#pcmanTable {border: 1px solid orange; float: left;}
+table#pcmanTable tr td {width: 18px; height: 18px; border: 1px solid pink; vertical-align: middle; text-align: center;}
+
