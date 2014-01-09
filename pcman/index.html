@@ -1,14 +1,62 @@
 <html>
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="../js/fancybox/jquery.fancybox.css?v=2.1.4" media="screen" />
         <link rel="stylesheet" type="text/css" href="pcman.css" />
         <title>Pac man</title>
     </head>
     <body>
 
-    <table id="pcmanTable" border="1">
-    </table>
+      <div id="content">
+        <table id="gameBoard"></table>
+
+        <table class="data"></table>
+
+        <div id="stats" style="display: none;">
+          <span id="points"></span>
+          <span id="timer"></span>
+        </div>
+
+        <div id="data">
+          <button style="display: none;" class="restart">Restart</button>
+          <button style="display: none;" class="next">Next</button>
+          <button style="display: none;" class="menu">Menu</button>
+        </div>
+
+
+
+        <a style="display: none" href="#startPrompt" id="fancyBox"></a>
+        <div id="startPrompt" style="display:none;">
+          <div class="buttons">
+            <button class="play">PLAY</button><br />
+            <button class="rules">RULES</button><br />
+            <button class="results">HALL OF FAME</button>
+          </div>
+
+          <div style="display: none" id="playerName">
+            <b>CREATE PLAYER</b><br />
+            Player Name: <input type="text" />
+            <button disabled="disabled" class="start">Start</button>
+            <button class="back">Back</button>
+          </div>
+
+          <div style="display: none" class="rules">
+            <b>RULES</b><br />
+            <p>Collect all the items from board, before snake does! Time maters, be quick.</p>
+            <button class="back">Back</button>
+          </div>
+
+          <div style="display: none" class="results">
+            <b>HALL OF FAME</b><br />
+            <table id="dataScores"></table>
+            <button class="back">Back</button>
+          </div>
+        </div>
+
+      </div>
+
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript" src="../js/fancybox/jquery.fancybox.js?v=2.1.4"></script>
         <script type="text/javascript" src="pcman.js"></script>
     </body>
 </html>

@@ -3,8 +3,22 @@
     padding: 0
 }
 body {
+    background: olive;
+}
+table#gameBoard {
+    border: 1px solid brown;
+    float: left;
+}
+table#gameBoard tr td {
+    width: 38px;
+    height: 38px;
+    vertical-align: middle;
+    text-align: center;
     background: orange;
 }
-table#pcmanTable {border: 1px solid orange; float: left;}
-table#pcmanTable tr td {width: 18px; height: 18px; border: 1px solid pink; vertical-align: middle; text-align: center;}
-
+table#gameBoard tr td.worm.activeWorm{
+    background: yellow;
+}
+div#data {
+    float: left;
+}
