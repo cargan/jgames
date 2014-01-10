@@ -1,3 +1,4 @@
+//https://github.com/qiao/PathFinding.js
 var gameBoard = 'gameBoard';
 
 var Player = {
@@ -10,6 +11,39 @@ var Player = {
       .prepend('<tr><td>Player:</td><td><i>' + Player.name + '</i></td></tr>');
   }
 };
+
+
+var PathFinder = {
+    grid: {},
+    finder: {},
+    init: function(config) {
+        PathFinder.grid = new PF.Grid(
+          config.horizontal,
+          config.vertical
+      );
+      PathFinder.finder = new PF.AStarFinder();
+      // //backup jeigu kelis kartus nuadosi findPath
+      // var gridBackup = grid.clone();
+    },
+    findPath: function(hunter, fish) {
+      var grid = PathFinder.grid.clone();
+      var path = PathFinder.finder.findPath(
+          hunter.x,
+          hunter.y,
+          fish.x,
+          fish.y,
+          grid
+      );
+
+      if (path.length >= 2) {
+          return {
+            x: path[1][0],
+            y: path[1][1]
+          }
+      }
+    }
+};
+
 
 //player :)
 var PcMan = {
@@ -41,6 +75,9 @@ var PcMan = {
         if (currentP) {
             PcMan.currentPosition = currentP;
         }
+    },
+    getCurrentPosition: function() {
+        return PcMan.currentPosition;
     }
 };
 
@@ -178,7 +215,7 @@ var LevelsConfig = {
                 c.coordinates.push((k*Cross.horizontal));
             }
         }
-        console.log(c.coordinates);
+        Cross.wall.concat(c.coordinates)
         Cross.renderWall({simple: c});
 
     },
@@ -187,7 +224,8 @@ var LevelsConfig = {
       $.each(bubles, function(key, value) {
         for (var i=1;i<=value.number;) {
           var random = getRandomInt(1, squares);
-          if (Cross.filled[random] === undefined) {
+          if (Cross.filled[random] === undefined
+             && Cross.wall.indexOf(random) == -1) {
             Cross.filled[random] = key;
             Cross._render(random, key, value.sign);
             i++;
@@ -240,11 +278,12 @@ var LevelsConfig = {
       var position = false;
       while (!position) {
         var rand = getRandomInt(1, squares);
-        if (Cross.filled[rand] === undefined) {
+        if (Cross.filled[rand] === undefined
+           && Cross.wall.indexOf(rand) == -1) {
           position = rand;
         }
       }
-      console.log(position);
+
       return position;
     },
     renderItem: function(position, sign, item) {
@@ -254,74 +293,6 @@ var LevelsConfig = {
         .addClass('active'+item.charAt(0).toUpperCase() + item.slice(1))
         .addClass('clicked')
         .html(sign);
-    },
-    getMoveAiPositionLogicLevelOne: function(positions) {
-      var position = false;
-      var tdArray = [];
-      $.each(positions, function(key, value){
-        var $td = Cross.table
-          .find('td[data-number="'+value+'"]')
-            .not('.clicked')
-            .not('.worm');
-
-        if ($td.data('buble')) {
-          tdArray.push($td.data());
-        }
-      });
-
-      if (tdArray.length) {
-        var rand = getRandomInt(0, tdArray.length - 1);
-        position = tdArray[rand].number;
-      }
-
-      return position;
-    },
-    getMoveAiPositionLevelOne: function(currentPosition, moveDimension) {
-      if (!moveDimension) {
-        moveDimension = 1;
-      }
-      var positionsArr = [
-        Cross.getHorizontalPosition(currentPosition, moveDimension),
-        Cross.getHorizontalPosition(currentPosition, -moveDimension),
-        Cross.getVerticalPosition(currentPosition, moveDimension),
-        Cross.getVerticalPosition(currentPosition, -moveDimension)
-      ];
-
-      return positionsArr.filter(function(e){return e;});
-    },
-    getMoveAiPositionAnyway: function(positions) {
-        var pos = [];
-        var position = false;
-        $.each(positions, function(key, value) {
-          var $td =
-            Cross.table.find('td[data-number="'+value+'"]')
-              .not('.clicked')
-              .not('.worm');
-          if ($td.length) {
-            pos.push(value);
-          }
-        });
-
-        if (pos.length) {
-          var positionsRand = getRandomInt(0, (pos.length - 1));
-          position = pos[positionsRand];
-        } else {
-          //if no gifts arround and all squares visited
-          var pr = getRandomInt(0, (positions.length - 1));
-          position = positions[pr];
-        }
-
-      return position;
-    },
-    getMoveAiPosition: function(currentPosition, level) {
-      var crossPositions = Cross.getMoveAiPositionLevelOne(currentPosition);
-      var position = Cross.getMoveAiPositionLogicLevelOne(crossPositions);
-
-      if (!position) {
-        position = Cross.getMoveAiPositionAnyway(crossPositions);
-      }
-
-      return position;
     },
     upperF: function(item) {
         return item.charAt(0).toUpperCase() + item.slice(1);
@@ -354,30 +325,6 @@ var LevelsConfig = {
         Cross.renderItem(pp, sign, item);
         return pp;
     },
-    moveAi: function(oldPosition, position, sign) {
-        Cross.table
-        .find('td.activeWorm')
-        .removeClass('activeWorm')
-        .html('');
-
-      var $td = Cross.table
-        .find('td[data-number="'+position+'"]');
-
-      if ($td.data('buble')) {
-        $td
-          .removeAttr('data-buble')
-          .addClass('clicked')
-          .addClass('worm')
-          .addClass('activeWorm')
-          .html(sign);
-        Cross.checkBublesLeft();
-      } else {
-        $td
-          .addClass('worm')
-          .addClass('activeWorm')
-          .html(sign);
-      }
-    },
     getHorizontalPosition: function(position, move) {
        // var rowNumber = Math.ceil((position - 1)/ Cross.horizontal);
        var colNumber = ((position - 1) % Cross.horizontal)+1;
@@ -399,8 +346,47 @@ var LevelsConfig = {
        }
 
        return target;
-    }
+    },
+    moveAi: function(position, sign) {
+        Cross.table
+        .find('td.activeWorm')
+        .removeClass('activeWorm')
+        .html('');
 
+      var $td = Cross.table
+        .find('td[data-number="'+position+'"]');
+
+      if ($td.data('buble')) {
+        $td
+          .removeAttr('data-buble')
+          .addClass('clicked')
+          .addClass('worm')
+          .addClass('activeWorm')
+          .html(sign);
+        Cross.checkBublesLeft();
+      } else if ($td.hasClass('activePcman')) {
+        $td
+          .addClass('worm')
+          .addClass('activeWorm')
+          .addClass('finito')
+          .html(sign);
+        Controller.end();
+      } else {
+        $td
+          .addClass('worm')
+          .addClass('activeWorm')
+          .html(sign);
+      }
+    },
+    getCoordinates: function(position) {
+        return {
+            x: ((position - 1) % Cross.horizontal)+1,
+            y: Math.ceil((position - 1)/ Cross.horizontal)
+        };
+    },
+    getPosition: function(coordinates) {
+        return coordinates.y * Cross.horizontal - Cross.horizontal + coordinates.x;
+    }
   };
 
   var Stats = {
@@ -527,13 +513,17 @@ var LevelsConfig = {
       Cross.start(levelConfig.cross);
       Cross.renderWall(levelConfig.wall);
       PcMan.start(Cross.getEmptySquare());
-      // Ai.start(levelConfig.ai, Cross.getEmptySquare());
+      PathFinder.init(levelConfig.cross);
+
+      Ai.start(levelConfig.ai, Cross.getEmptySquare());
 
       Stats.start(Controller.level);
       Controller.started = true;
       Controller.finished = false;
     },
     end: function() {
+      Ai.finish();
+      Timer.finish();
       Controller.finished = true;
       console.log('The end', Stats.stats);
     },
@@ -551,6 +541,15 @@ var LevelsConfig = {
     }
   };
 
+  // var Ai = function(data) {
+  //   this.interval        = data.interval;
+  //   this.speed           = data.speed;
+  //   this.sign            = data.sign;
+  //   this.level           = data.level;
+  //   this.side            = data.side,
+  //   this.speedConst      = data.speedConst;
+  //   this.currentPosition = data.currentPosition;
+  // };
   //main muscles of moving snake
   var Ai = {
     speedConst: 400,
@@ -562,16 +561,18 @@ var LevelsConfig = {
     side: false,
     start: function(data, startPosition) {
       Ai.currentPosition = startPosition;
-      Ai.currentPosition = 10;
       Ai.speed = data.speed;
-//UNCOMENT FOR AI
-      // Cross.renderItem(Ai.currentPosition, Ai.sign, 'worm');
-      // Ai.interval = setInterval(Ai.moveAi, Ai.speed * Ai.speedConst);
+      Cross.renderItem(Ai.currentPosition, Ai.sign, 'worm');
+      Ai.interval = setInterval(Ai.moveAi, Ai.speed * Ai.speedConst);
     },
     moveAi: function() {
-      var position = Cross.getMoveAiPosition(Ai.currentPosition, Ai.level);
-      Cross.moveAi(Ai.currentPosition, position, Ai.sign);
+      // var position = Cross.getMoveAiPosition(Ai.currentPosition, Ai.level);
+      var hunter = Cross.getCoordinates(Ai.currentPosition);
+      var fish = Cross.getCoordinates(PcMan.getCurrentPosition());
+      var coordinates = PathFinder.findPath(hunter, fish);
+      var position = Cross.getPosition(coordinates);
       Ai.currentPosition = position;
+      Cross.moveAi(position, Ai.sign);
     },
     finish: function() {
       clearInterval(Ai.interval);
@@ -708,7 +709,7 @@ $(document).ready(function(){
     $('body').keydown(function(e) {
         var keys = [37, 38, 39, 40];
         if (
-            // Timer.interval && Timer.seconds &&
+            Timer.interval && Timer.seconds &&
             keys.indexOf(e.keyCode) != -1) {
             PcMan.moveItem(e.keyCode);
         }

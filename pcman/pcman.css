@@ -25,6 +25,9 @@ table#gameBoard tr td.activePcMan{
 table#gameBoard tr td.wall {
     background: pink;
 }
+table#gameBoard tr td.finito {
+    background: red !important;
+}
 div#data {
     float: left;
 }
