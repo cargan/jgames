@@ -19,8 +19,11 @@ table#gameBoard tr td {
 table#gameBoard tr td.worm.activeWorm {
     background: yellow;
 }
-table#gameBoard tr td.pcMan{
+table#gameBoard tr td.activePcMan{
     background: navy;
+}
+table#gameBoard tr td.wall {
+    background: pink;
 }
 div#data {
     float: left;

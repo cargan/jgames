@@ -45,8 +45,7 @@ var PcMan = {
 };
 
 var LevelsConfig = {
-  config: [
-  {
+  config: [ {
     name: 'first',
     levelPoints: 5,
     ai: {
@@ -66,110 +65,21 @@ var LevelsConfig = {
         }
       }
     },
-    cross: {
-      vertical: 16,
-      horizontal: 11
-    },
-    timer: {
-      seconds: 20
-    }
-  },
-  {
-    name: 'second',
-    levelPoints: 8,
-    ai: {
-      speed: 2
-    },
-    bubles: {
-      bubles: {
+    wall: {
         simple: {
-          number: 7,
-          sign: '&#x2318;',
-          points: 1
-        },
-        extra: {
-          number: 2,
-          sign: '&#x2325;',
-          points: 2
+             coordinates: [9, 10, 11, 17, 27, 28],
+             sign: '&#64;',
         }
-      }
-    },
-    cross: {
-      vertical: 7,
-      horizontal: 7
-    },
-    timer: {
-      seconds: 20
-    }
-  },
-  {
-    name: 'third',
-    levelPoints: 10,
-    ai: {
-      speed: 3
-    },
-    bubles: {
-      bubles: {
-        simple: {
-          number: 12,
-          sign: '&#x2318;',
-          points: 1
-        },
-        extra: {
-          number: 4,
-          sign: '&#x2325;',
-          points: 2
-        },
-        duper: {
-          number: 1,
-          sign: '&#8734;',
-          points: 3
-        }
-
-      }
-    },
-    cross: {
-      vertical: 10,
-      horizontal: 10
-    },
-    timer: {
-      seconds: 30
-    }
-  },
-  {
-    name: 'fourth',
-    levelPoints: 15,
-    ai: {
-      speed: 3
-    },
-    bubles: {
-      bubles: {
-        simple: {
-          number: 16,
-          sign: '&#x2318;',
-          points: 1
-        },
-        extra: {
-          number: 8,
-          sign: '&#x2325;',
-          points: 2
-        },
-        duper: {
-          number: 3,
-          sign: '&#8734;',
-          points: 3
-        }
-      }
     },
     cross: {
       vertical: 12,
-      horizontal: 12
+      horizontal: 17,
+      wallArround: true
     },
     timer: {
-      seconds: 60
+      seconds: 20
     }
-  }
-  ],
+  } ],
   getLevel: function(level) {
     return LevelsConfig.config[level-1];
   },
@@ -216,6 +126,8 @@ var LevelsConfig = {
     horizontal: 0,
     filled: {},
     table: {},
+    wall: [],
+    wallArround: false,
     init: function(table) {
       Cross.table = $('#'+table);
     },
@@ -228,22 +140,47 @@ var LevelsConfig = {
     _setValues: function(data) {
       Cross.vertical = data.vertical;
       Cross.horizontal = data.horizontal;
+      Cross.wallArround = data.wallArround;
     },
     _reset: function() {
       Cross.filled = {};
     },
     _generateTable: function() {
+      var count = 1;
       for (var i=1; i<=Cross.vertical;i++) {
         var $tr = $(document.createElement('tr'));
         for (var k=1; k<=Cross.horizontal;k++) {
           var $td = $(document.createElement('td'));
-          var tdNumber = (i*Cross.vertical - Cross.vertical) + k;
-          $td.attr('data-number', tdNumber);
+          $td.attr('data-number', count++);
           $tr.append($td);
         }
         $(Cross.table)
           .append($tr);
       }
+
+      if (Cross.wallArround) {
+          Cross._generateWallArround();
+      }
+    },
+    _generateWallArround: function () {
+        var c = {
+            sign: '&#64;',
+            coordinates: []
+        };
+
+        for(var k=1; k<=Cross.vertical;k++) {
+            if (k==1 || k== Cross.vertical) {
+                for(var i=1;i<=Cross.horizontal;i++) {
+                    c.coordinates.push((k*Cross.horizontal - Cross.horizontal) + i);
+                }
+            } else {
+                c.coordinates.push((k*Cross.horizontal - Cross.horizontal)+1);
+                c.coordinates.push((k*Cross.horizontal));
+            }
+        }
+        console.log(c.coordinates);
+        Cross.renderWall({simple: c});
+
     },
     _renderBubles: function(bubles){
       var squares = Cross.vertical * Cross.horizontal;
@@ -264,6 +201,18 @@ var LevelsConfig = {
         .addClass('clickable')
         .html(sign)
         .attr('data-buble', bubleType);
+    },
+    renderWall: function(coordinates) {
+        for (item in coordinates) {
+            Cross.wall = Cross.wall.concat(coordinates[item].coordinates);
+            coordinates[item].coordinates.forEach(function(entry) {
+              $(Cross.table)
+                .find('td[data-number="'+entry+'"]')
+                .addClass('wall')
+                .html(coordinates[item]['sign'])
+                .attr('data-wall', true);
+            });
+        }
     },
     click: function($item) {
       if ($item.data('buble') && !$item.hasClass('clicked')) {
@@ -295,6 +244,7 @@ var LevelsConfig = {
           position = rand;
         }
       }
+      console.log(position);
       return position;
     },
     renderItem: function(position, sign, item) {
@@ -391,7 +341,8 @@ var LevelsConfig = {
             //down
             pp = Cross.getVerticalPosition(position, 1);
         }
-        if (!pp) {
+
+        if (!pp || Cross.wall.indexOf(pp) != -1) {
             return false;
         }
 
@@ -429,7 +380,7 @@ var LevelsConfig = {
     },
     getHorizontalPosition: function(position, move) {
        // var rowNumber = Math.ceil((position - 1)/ Cross.horizontal);
-       var colNumber = ((position - 1) % Cross.vertical)+1;
+       var colNumber = ((position - 1) % Cross.horizontal)+1;
        var target = position + move;
         if ( (move > 0) && (colNumber == Cross.horizontal) ) {
             return false;
@@ -440,17 +391,14 @@ var LevelsConfig = {
         return target;
     },
     getVerticalPosition: function(position, move) {
-       var rowNumber = Math.ceil((position)/ Cross.vertical);
-       // var colNumber = ((position - 1) % Cross.horizontal)+1;
-       var target = position + move * Cross.vertical;
+       var target = position + move * Cross.horizontal;
+       if ( (move > 0) && (target > Cross.vertical*Cross.horizontal) ) {
+           return false;
+       } else if ( (move < 0) && (target < 1) ) {
+           return false;
+       }
 
-        if ( (move > 0) && (rowNumber == Cross.vertical) ) {
-            return false;
-        } else if ( (move < 0) && (rowNumber == 1) ) {
-            return false;
-        }
-
-        return target;
+       return target;
     }
 
   };
@@ -577,8 +525,9 @@ var LevelsConfig = {
       Cross.init(gameBoard);
       Cross.table.html('');
       Cross.start(levelConfig.cross);
+      Cross.renderWall(levelConfig.wall);
       PcMan.start(Cross.getEmptySquare());
-      Ai.start(levelConfig.ai, Cross.getEmptySquare());
+      // Ai.start(levelConfig.ai, Cross.getEmptySquare());
 
       Stats.start(Controller.level);
       Controller.started = true;
@@ -649,21 +598,21 @@ var LevelsConfig = {
 
 
 $(document).ready(function(){
-
-  // FBStats.init();
-  //start fancybox
-  $('#fancyBox').fancybox({
-    autoSize: false,
-    openEffect: false,
-    closeEffect: false,
-    closeClick: false,
-    modal: true,
-    live: true,
-    beforeLoad: function() {
-      this.width  = 400;
-      this.height = 150;
-    }
-  }).trigger('click');
+  // //start fancybox
+  // $('#fancyBox').fancybox({
+  //   autoSize: false,
+  //   openEffect: false,
+  //   closeEffect: false,
+  //   closeClick: false,
+  //   modal: true,
+  //   live: true,
+  //   beforeLoad: function() {
+  //     this.width  = 400;
+  //     this.height = 150;
+  //   }
+  // }).trigger('click');
+      Player.saveName('qqqqqq');
+      Controller.start(1);
 
   //play prompt logic
   $('#startPrompt button').click(function() {
@@ -758,8 +707,9 @@ $(document).ready(function(){
 
     $('body').keydown(function(e) {
         var keys = [37, 38, 39, 40];
-        if (Controller.started && !Controller.finished
-            && keys.indexOf(e.keyCode) != -1) {
+        if (
+            // Timer.interval && Timer.seconds &&
+            keys.indexOf(e.keyCode) != -1) {
             PcMan.moveItem(e.keyCode);
         }
     });
@@ -769,57 +719,3 @@ $(document).ready(function(){
 function getRandomInt (min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-//UNUSED
-//code reused https://www.firebase.com/tutorial/ - Leaderboard example
-  // var FBStats = {
-  //   link: 'https://jgames.firebaseio.com/crosses/',
-  //   ref: undefined,
-  //   scoreListView: undefined,
-  //   limit: 10,
-  //   htmlForPath: {},
-  //   init: function() {
-  //     FBStats.ref = new Firebase(FBStats.link);
-  //     FBStats.scoreListView = FBStats.ref.limit(FBStats.limit);
-
-  //     FBStats.scoreListView.on('child_added', function (newScoreSnapshot, prevScoreName) {
-  //       FBStats.handleScoreAdded(newScoreSnapshot, prevScoreName);
-  //     });
-
-  //     FBStats.scoreListView.on('child_removed', function (oldScoreSnapshot) {
-  //       FBStats.handleScoreRemoved(oldScoreSnapshot);
-  //     });
-
-  //     var changedCallback = function (scoreSnapshot, prevScoreName) {
-  //       FBStats.handleScoreRemoved(scoreSnapshot);
-  //       FBStats.handleScoreAdded(scoreSnapshot, prevScoreName);
-  //     };
-  //     FBStats.scoreListView.on('child_moved', changedCallback);
-  //     FBStats.scoreListView.on('child_changed', changedCallback);
-  //   },
-  //   handleScoreAdded: function(scoreSnapshot, prevScoreName) {
-  //     var newScoreRow = $("<tr/>");
-  //     newScoreRow.append($("<td/>").append($("<em/>").text(scoreSnapshot.val().name)));
-  //     newScoreRow.append($("<td/>").text(scoreSnapshot.val().score));
-
-  //     FBStats.htmlForPath[scoreSnapshot.name()] = newScoreRow;
-
-  //     if (prevScoreName === null) {
-  //       $("#dataScores").append(newScoreRow);
-  //     }
-  //     else {
-  //       var lowerScoreRow = FBStats.htmlForPath[prevScoreName];
-  //       lowerScoreRow.before(newScoreRow);
-  //     }
-  //   },
-  //   handleScoreRemoved: function(scoreSnapshot) {
-  //     var removedScoreRow = FBStats.htmlForPath[scoreSnapshot.name()];
-  //     removedScoreRow.remove();
-  //     delete FBStats.htmlForPath[scoreSnapshot.name()];
-  //   },
-  //   addScore: function(score, name) {
-  //     var userScoreRef = FBStats.ref.child(name);
-  //     userScoreRef.setWithPriority({ name: name, score: score }, score);
-  //   }
-  // };
-
-
