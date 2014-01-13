@@ -22,8 +22,6 @@ var PathFinder = {
           config.vertical
       );
       PathFinder.finder = new PF.AStarFinder();
-      // //backup jeigu kelis kartus nuadosi findPath
-      // var gridBackup = grid.clone();
     },
     findPath: function(hunter, fish) {
       var grid = PathFinder.grid.clone();
@@ -35,11 +33,13 @@ var PathFinder = {
           grid
       );
 
-      if (path.length >= 2) {
-          return {
-            x: path[1][0],
-            y: path[1][1]
-          }
+      if (path.length < 2) {
+          return false;
+      }
+
+      return {
+        x: path[1][0],
+        y: path[1][1]
       }
     }
 };
@@ -131,79 +131,79 @@ var LevelsConfig = {
   }
 };
 
-  var Bubles = {
-    speed: 0,
-    bubles: {},
-    numberBubles: 0,
-    start: function(data) {
-      Bubles.setValues(data);
-    },
-    setValues: function(data) {
-      Bubles.bubles = data.bubles;
-      Bubles.speed = data.speed;
-      Bubles.numberBubles = LevelsConfig.getNumberOfBubles(Controller.level);
-    },
-    getBubles: function() {
-      return Bubles.bubles;
-    },
-    getBublePoints: function(type) {
-      var points = false;
-      $.each(Bubles.bubles, function(key, value) {
-        if (type == key) {
-          points = value.points;
-          return false;
-        }
-      });
-      return points;
+var Bubles = {
+  speed: 0,
+  bubles: {},
+  numberBubles: 0,
+  start: function(data) {
+    Bubles.setValues(data);
+  },
+  setValues: function(data) {
+    Bubles.bubles = data.bubles;
+    Bubles.speed = data.speed;
+    Bubles.numberBubles = LevelsConfig.getNumberOfBubles(Controller.level);
+  },
+  getBubles: function() {
+    return Bubles.bubles;
+  },
+  getBublePoints: function(type) {
+    var points = false;
+    $.each(Bubles.bubles, function(key, value) {
+      if (type == key) {
+        points = value.points;
+        return false;
+      }
+    });
+    return points;
+  }
+};
+
+var Cross = {
+  vertical: 0,
+  horizontal: 0,
+  filled: {},
+  table: {},
+  wall: [],
+  wallArround: false,
+  init: function(table) {
+    Cross.table = $('#'+table);
+  },
+  start: function(data) {
+    Cross._reset();
+    Cross._setValues(data);
+    Cross._generateTable();
+    Cross._renderBubles(Bubles.getBubles());
+  },
+  _setValues: function(data) {
+    Cross.vertical = data.vertical;
+    Cross.horizontal = data.horizontal;
+    Cross.wallArround = data.wallArround;
+  },
+  _reset: function() {
+    Cross.filled = {};
+  },
+  _generateTable: function() {
+    var count = 1;
+    for (var i=1; i<=Cross.vertical;i++) {
+      var $tr = $(document.createElement('tr'));
+      for (var k=1; k<=Cross.horizontal;k++) {
+        var $td = $(document.createElement('td'));
+        $td.attr('data-number', count++);
+        $tr.append($td);
+      }
+      $(Cross.table)
+        .append($tr);
     }
-  };
 
-  var Cross = {
-    vertical: 0,
-    horizontal: 0,
-    filled: {},
-    table: {},
-    wall: [],
-    wallArround: false,
-    init: function(table) {
-      Cross.table = $('#'+table);
-    },
-    start: function(data) {
-      Cross._reset();
-      Cross._setValues(data);
-      Cross._generateTable();
-      Cross._renderBubles(Bubles.getBubles());
-    },
-    _setValues: function(data) {
-      Cross.vertical = data.vertical;
-      Cross.horizontal = data.horizontal;
-      Cross.wallArround = data.wallArround;
-    },
-    _reset: function() {
-      Cross.filled = {};
-    },
-    _generateTable: function() {
-      var count = 1;
-      for (var i=1; i<=Cross.vertical;i++) {
-        var $tr = $(document.createElement('tr'));
-        for (var k=1; k<=Cross.horizontal;k++) {
-          var $td = $(document.createElement('td'));
-          $td.attr('data-number', count++);
-          $tr.append($td);
-        }
-        $(Cross.table)
-          .append($tr);
-      }
-
-      if (Cross.wallArround) {
-          Cross._generateWallArround();
-      }
-    },
-    _generateWallArround: function () {
-        var c = {
-            sign: '&#64;',
-            coordinates: []
-        };
+    if (Cross.wallArround) {
+        Cross._generateWallArround();
+    }
+  },
+  _generateWallArround: function () {
+      var c = {
+          sign: '&#64;',
+          coordinates: []
+      };
 
         for(var k=1; k<=Cross.vertical;k++) {
             if (k==1 || k== Cross.vertical) {
@@ -414,7 +414,6 @@ var LevelsConfig = {
     },
     submit: function() {
       var points = Stats.points + Stats.totalPoints;
-      // FBStats.addScore(points, Player.name);
       Stats.renderStats(points);
     },
     renderStats: function(points) {
@@ -487,103 +486,108 @@ var LevelsConfig = {
     }
   };
 
+
   //basic object to controll app runing
-  var Controller = {
-    started: false,
-    finished: false,
-    level: false,
-    start: function(level) {
-      $('#stats')
+var Controller = {
+  started: false,
+  finished: false,
+  level: false,
+  start: function(level) {
+    $('#stats')
+      .hide()
+      .find('span.time')
+      .html('');
+
+    if (level === undefined || !Controller.level) {
+      Controller.level = Controller.level ? Controller.level + 1 : 1;
+    }
+    var levelConfig = LevelsConfig.getLevel(Controller.level);
+    if (!levelConfig) {
+      return Controller.end();
+    }
+
+    Timer.start(levelConfig.timer);
+    Bubles.start(levelConfig.bubles);
+    Cross.init(gameBoard);
+    Cross.table.html('');
+    Cross.start(levelConfig.cross);
+    Cross.renderWall(levelConfig.wall);
+    PcMan.start(Cross.getEmptySquare());
+    PathFinder.init(levelConfig.cross);
+
+    Ai.start(levelConfig.ai, Cross.getEmptySquare());
+
+    Stats.start(Controller.level);
+    Controller.started = true;
+    Controller.finished = false;
+  },
+  end: function() {
+    Ai.finish();
+    Timer.finish();
+    Controller.finished = true;
+    console.log('The end', Stats.stats);
+  },
+  actionButtons: function() {
+    if (Controller.level < LevelsConfig.config.length) {
+      $('#data button')
+        .show()
+        .prop('disabled', false);
+    } else {
+      $('#data button')
         .hide()
-        .find('span.time')
-        .html('');
-
-      if (level === undefined || !Controller.level) {
-        Controller.level = Controller.level ? Controller.level + 1 : 1;
-      }
-      var levelConfig = LevelsConfig.getLevel(Controller.level);
-      if (!levelConfig) {
-        return Controller.end();
-      }
-
-      Timer.start(levelConfig.timer);
-      Bubles.start(levelConfig.bubles);
-      Cross.init(gameBoard);
-      Cross.table.html('');
-      Cross.start(levelConfig.cross);
-      Cross.renderWall(levelConfig.wall);
-      PcMan.start(Cross.getEmptySquare());
-      PathFinder.init(levelConfig.cross);
-
-      Ai.start(levelConfig.ai, Cross.getEmptySquare());
-
-      Stats.start(Controller.level);
-      Controller.started = true;
-      Controller.finished = false;
-    },
-    end: function() {
-      Ai.finish();
-      Timer.finish();
-      Controller.finished = true;
-      console.log('The end', Stats.stats);
-    },
-    actionButtons: function() {
-      if (Controller.level < LevelsConfig.config.length) {
-        $('#data button')
-          .show()
-          .prop('disabled', false);
-      } else {
-        $('#data button')
-          .hide()
-          .end()
-            .append('<p>THE END</p>');
-      }
+        .end()
+          .append('<p>THE END</p>');
     }
-  };
+  }
+};
 
-  // var Ai = function(data) {
-  //   this.interval        = data.interval;
-  //   this.speed           = data.speed;
-  //   this.sign            = data.sign;
-  //   this.level           = data.level;
-  //   this.side            = data.side,
-  //   this.speedConst      = data.speedConst;
-  //   this.currentPosition = data.currentPosition;
-  // };
-  //main muscles of moving snake
-  var Ai = {
-    speedConst: 400,
-    interval: false,
-    currentPosition: false,
-    speed: false,
-    sign: '&#8855;',
-    level: 1,
-    side: false,
-    start: function(data, startPosition) {
-      Ai.currentPosition = startPosition;
-      Ai.speed = data.speed;
-      Cross.renderItem(Ai.currentPosition, Ai.sign, 'worm');
-      Ai.interval = setInterval(Ai.moveAi, Ai.speed * Ai.speedConst);
-    },
-    moveAi: function() {
-      // var position = Cross.getMoveAiPosition(Ai.currentPosition, Ai.level);
-      var hunter = Cross.getCoordinates(Ai.currentPosition);
-      var fish = Cross.getCoordinates(PcMan.getCurrentPosition());
-      var coordinates = PathFinder.findPath(hunter, fish);
-      var position = Cross.getPosition(coordinates);
-      Ai.currentPosition = position;
-      Cross.moveAi(position, Ai.sign);
-    },
-    finish: function() {
-      clearInterval(Ai.interval);
-    },
-    setSide: function(side) {
-      Ai.side = side;
-    },
-    getSide: function(side) {
-      return Ai.side;
-    }
-  };
+var Ai = function(data) {
+  // this.interval        = data.interval;
+  this.speed           = data.speed;
+  this.sign            = data.sign;
+  this.level           = data.level;
+  this.side            = data.side,
+  this.speedConst      = data.speedConst;
+  this.currentPosition = data.currentPosition;
+
+  Cross.renderItem(Ai.currentPosition, Ai.sign, 'worm');
+  this.interval = setInterval(Ai.moveAi, Ai.speed * Ai.speedConst);
+
+};
+
+Ai.prototipe.finish() {
+    clearInterval(this.interval);
+}
+
+
+//main muscles of moving snake
+// var Ai = {
+//   speedConst: 400,
+//   interval: false,
+//   currentPosition: false,
+//   speed: false,
+//   sign: '&#8855;',
+//   level: 1,
+//   side: false,
+//   start: function(data, startPosition) {
+//     Ai.currentPosition = startPosition;
+//     Ai.speed = data.speed;
+//     Cross.renderItem(Ai.currentPosition, Ai.sign, 'worm');
+//     Ai.interval = setInterval(Ai.moveAi, Ai.speed * Ai.speedConst);
+//   },
+//   moveAi: function() {
+//     // var position = Cross.getMoveAiPosition(Ai.currentPosition, Ai.level);
+//     var hunter = Cross.getCoordinates(Ai.currentPosition);
+//     var fish = Cross.getCoordinates(PcMan.getCurrentPosition());
+//     var coordinates = PathFinder.findPath(hunter, fish);
+//     var position = Cross.getPosition(coordinates);
+//     Ai.currentPosition = position;
+//     Cross.moveAi(position, Ai.sign);
+//   },
+//   finish: function() {
+//     clearInterval(Ai.interval);
+//   },
+// };
 
   //used for storing user name :)
   var Storage = {

@@ -23,7 +23,7 @@ table#gameBoard tr td.activePcMan{
     background: navy;
 }
 table#gameBoard tr td.wall {
-    background: pink;
+    background: #666;
 }
 table#gameBoard tr td.finito {
     background: red !important;
