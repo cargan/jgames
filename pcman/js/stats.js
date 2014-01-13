@@ -18,7 +18,7 @@ var Stats = {
     Stats.submit();
   },
   addLevelPoints: function() {
-    var levelConfig = Config.getLevel(Game.level);
+    var levelConfig = LevelConfig.getLevel(Game.level);
     Stats.points += levelConfig.levelPoints;
   },
   submit: function() {

@@ -21,6 +21,7 @@ var Board = {
   },
   _reset: function() {
     Board.filled = {};
+    Board.wall = [];
   },
   _generateTable: function() {
     var count = 1;
@@ -103,15 +104,14 @@ var Board = {
     checkBubblesLeft: function() {
       // if (Board.bublesOnTheBoard == Bubbles.numberBubbles) {
       if (Board.table.find('td.clickable').not('.clicked').length === 0) {
-        Stats.addLevelPoints();
-        Stats.finish();
-        Timer.finish();
         Game.finish();
-        Board.table.find('td')
+		Board.table.find('td')
           .prop('disabled', true);
         $('#start button')
           .prop('disabled', false);
+		return false;
       }
+		return true;
     },
     getEmptySquare: function() {
       var squares = Board.vertical * Board.horizontal;
@@ -127,12 +127,17 @@ var Board = {
       return position;
     },
     renderItem: function(position, sign, item) {
-        Board.table
-        .find('td[data-number="'+position+'"]')
-        .addClass(item)
-        .addClass('active'+item.charAt(0).toUpperCase() + item.slice(1))
-        .addClass('clicked')
-        .html(sign);
+		var $td = Board.table.find('td[data-number="'+position+'"]');
+
+      if ($td.data('buble')) {
+        $td
+          .removeAttr('data-buble')
+		}
+
+        $td.addClass(item)
+			.addClass('active'+Board.upperF(item))
+			.addClass('clicked')
+			.html(sign);
     },
     upperF: function(item) {
         return item.charAt(0).toUpperCase() + item.slice(1);
@@ -153,6 +158,7 @@ var Board = {
             pp = Board.getVerticalPosition(position, 1);
         }
 
+console.log(position, direction, sign, item, pp, Board.wall.indexOf(pp));
         if (!pp || Board.wall.indexOf(pp) != -1) {
             return false;
         }
@@ -163,7 +169,40 @@ var Board = {
             .html('');
 
         Board.renderItem(pp, sign, item);
+        Board.checkBubblesLeft();
         return pp;
+    },
+    moveAi: function(position, sign) {
+        Board.table
+        .find('td.activeWorm')
+        .removeClass('activeWorm')
+        .html('');
+
+      var $td = Board.table
+        .find('td[data-number="'+position+'"]');
+
+      if ($td.data('buble')) {
+        $td
+          .removeAttr('data-buble')
+          .removeClass('clickable')
+          .addClass('clicked')
+          .addClass('worm')
+          .addClass('activeWorm')
+          .html(sign);
+        Board.checkBubblesLeft();
+      } else if ($td.hasClass('activePcman')) {
+        $td
+          .addClass('worm')
+          .addClass('activeWorm')
+          .addClass('finito')
+          .html(sign);
+        Game.finish();
+      } else {
+        $td
+          .addClass('worm')
+          .addClass('activeWorm')
+          .html(sign);
+      }
     },
     getHorizontalPosition: function(position, move) {
        // var rowNumber = Math.ceil((position - 1)/ Board.horizontal);
@@ -187,37 +226,7 @@ var Board = {
 
        return target;
     },
-    moveAi: function(position, sign) {
-        Board.table
-        .find('td.activeWorm')
-        .removeClass('activeWorm')
-        .html('');
 
-      var $td = Board.table
-        .find('td[data-number="'+position+'"]');
-
-      if ($td.data('buble')) {
-        $td
-          .removeAttr('data-buble')
-          .addClass('clicked')
-          .addClass('worm')
-          .addClass('activeWorm')
-          .html(sign);
-        Board.checkBubblesLeft();
-      } else if ($td.hasClass('activePcman')) {
-        $td
-          .addClass('worm')
-          .addClass('activeWorm')
-          .addClass('finito')
-          .html(sign);
-        Game.end();
-      } else {
-        $td
-          .addClass('worm')
-          .addClass('activeWorm')
-          .html(sign);
-      }
-    },
     getCoordinates: function(position) {
         return {
             x: ((position - 1) % Board.horizontal)+1,

@@ -5,20 +5,18 @@ var gameBoard = 'gameBoard';
 
 $(document).ready(function(){
   // //start fancybox
-  // $('#fancyBox').fancybox({
-  //   autoSize: false,
-  //   openEffect: false,
-  //   closeEffect: false,
-  //   closeClick: false,
-  //   modal: true,
-  //   live: true,
-  //   beforeLoad: function() {
-  //     this.width  = 400;
-  //     this.height = 150;
-  //   }
-  // }).trigger('click');
-      Player.saveName('qqqqqq');
-      Game.start(1);
+  $('#fancyBox').fancybox({
+    autoSize: false,
+    openEffect: false,
+    closeEffect: false,
+    closeClick: false,
+    modal: true,
+    live: true,
+    beforeLoad: function() {
+      this.width  = 400;
+      this.height = 150;
+    }
+  }).trigger('click');
 
   //play prompt logic
   $('#startPrompt button').click(function() {
@@ -114,9 +112,11 @@ $(document).ready(function(){
     $('body').keydown(function(e) {
         var keys = [37, 38, 39, 40];
         if (
-            Timer.interval && Timer.seconds &&
+            Game.started && !Game.finished &&
             keys.indexOf(e.keyCode) != -1) {
             PcMan.moveItem(e.keyCode);
+        } else {
+console.log('negerai', Game.started ,Game.finished);
         }
     });
 

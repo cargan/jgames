@@ -35,8 +35,6 @@ var Timer = {
   },
   finish: function() {
     clearInterval(Timer.interval);
+	Timer.seconds = 0;
   }
 };
-
-
-

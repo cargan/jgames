@@ -14,7 +14,7 @@ var Game = {
     }
     var levelConfig = LevelConfig.getLevel(Game.level);
     if (!levelConfig) {
-      return Game.end();
+      return Game.finish();
     }
 
     Timer.start(levelConfig.timer);
@@ -45,22 +45,23 @@ var Game = {
     Game.started = true;
     Game.finished = false;
   },
-  end: function() {
+  finish: function() {
     clearInterval(Game.aiInterval);
-    Timer.finish();
     Game.finished = true;
-    console.log('The end', Stats.stats);
+    Game.started = false;
+    Timer.finish();
+    Stats.addLevelPoints();
+    Stats.finish();
   },
   actionButtons: function() {
     if (Game.level < LevelConfig.config.length) {
       $('#data button')
         .show()
         .prop('disabled', false);
+        $('#data').prepend('<p>The End</p>');
     } else {
-      $('#data button')
-        .hide()
-        .end()
-          .append('<p>THE END</p>');
+      $('#data button').hide();
+      $('#data button.restart').show();
     }
   }
 };
