@@ -18,10 +18,14 @@ var Game = {
     }
 
     Timer.start(levelConfig.timer);
-    Bubbles.start(levelConfig.bubles);
+    var Bubble = new Bubbles(
+		levelConfig.bubbles,
+		LevelConfig.getNumberOfBubbles(Game.level)
+	);
+	var b = Bubble.getBubbles();
     Board.init(gameBoard);
     Board.table.html('');
-    Board.start(levelConfig.cross);
+    Board.start(levelConfig.cross, b.bubbles);
     Board.renderWall(levelConfig.wall);
     PcMan.start(Board.getEmptySquare());
     PathFinder.init(levelConfig.cross);

@@ -8,8 +8,8 @@ var LevelConfig = {
       level: 1,
       speedConst: 400
     },
-    bubles: {
-      bubles: {
+    bubbles: {
+      bubbles: {
         simple: {
           number: 4,
           sign: '&#x2318;',
@@ -41,12 +41,12 @@ var LevelConfig = {
     return LevelConfig.config[level-1];
   },
   getNumberOfBubbles: function(level) {
-    var bubles = LevelConfig.config[level-1].bubles.bubles;
-    var bublesCount = 0;
-    $.each(bubles, function(key, value) {
-      bublesCount += value.number;
+    var bubbles = LevelConfig.config[level-1].bubbles.bubbles;
+    var bubblesCount = 0;
+    $.each(bubbles, function(key, value) {
+      bubblesCount += value.number;
     });
 
-    return bublesCount;
+    return bubblesCount;
   }
 };

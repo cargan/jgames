@@ -8,11 +8,11 @@ var Board = {
   init: function(table) {
     Board.table = $('#'+table);
   },
-  start: function(data) {
+  start: function(data, bubbles) {
     Board._reset();
     Board._setValues(data);
     Board._generateTable();
-    Board._renderBubbles(Bubbles.getBubbles());
+    Board._renderBubbles(bubbles);
   },
   _setValues: function(data) {
     Board.vertical = data.vertical;

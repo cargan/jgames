@@ -1,28 +1,19 @@
-var Bubbles = {
-  speed: 0,
-  bubles: {},
-  numberBubbles: 0,
-  start: function(data) {
-    Bubbles.setValues(data);
-  },
-  setValues: function(data) {
-    Bubbles.bubles = data.bubles;
-    Bubbles.speed = data.speed;
-    Bubbles.numberBubbles = LevelConfig.getNumberOfBubbles(Game.level);
-  },
-  getBubbles: function() {
-    return Bubbles.bubles;
-  },
-  getBublePoints: function(type) {
-    var points = false;
-    $.each(Bubbles.bubles, function(key, value) {
-      if (type == key) {
-        points = value.points;
-        return false;
-      }
-    });
-    return points;
-  }
+var Bubbles = function(bubbles, number) {
+  this.bubbles       = bubbles;
+  this.numberBubbles = number;
 };
 
+Bubbles.prototype.getBubbles = function() {
+    return this.bubbles;
+}
+Bubbles.prototype.getBublePoints = function(type) {
+    var points = false;
+    $.each(this.bubles, function(key, value) {
+        if (type == key) {
+			points = value.points;
+			return false;
+        }
+    });
 
+    return points;
+};
