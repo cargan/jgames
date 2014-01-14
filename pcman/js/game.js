@@ -8,6 +8,9 @@ var Game = {
       .hide()
       .find('span.time')
       .html('');
+    $('#info')
+        .hide()
+        .html('');
 
     if (level === undefined || !Game.level) {
       Game.level = Game.level ? Game.level + 1 : 1;
@@ -38,17 +41,6 @@ var Game = {
     Ais.forEach(function(item) {
         Board.renderItem(item.getPosition(), item.getSign(), item.getId());
     });
-
-    Ais.forEach(function(item) {
-        var hunter      = Board.getCoordinates(item.getPosition());
-        var fish        = Board.getCoordinates(PcMan.getCurrentPosition());
-        var coordinates = PathFinder.findPath(hunter, fish);
-        var position    = Board.getPosition(coordinates);
-        Board.moveAi(item.getPosition(), position, item.getSign());
-        item.setPosition(position);
-    });
-
-
     Game.aiInterval = setInterval(function() {
       Ais.forEach(function(item) {
         var hunter      = Board.getCoordinates(item.getPosition());
@@ -74,10 +66,12 @@ var Game = {
   },
   actionButtons: function() {
     if (Game.level < LevelConfig.config.length) {
+      $('#info')
+        .show()
+        .html('<p>The End</p>');
       $('#data button')
         .show()
         .prop('disabled', false);
-        $('#data').prepend('<p>The End</p>');
     } else {
       $('#data button').hide();
       $('#data button.restart').show();

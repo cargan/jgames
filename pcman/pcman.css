@@ -31,3 +31,7 @@ table#gameBoard tr td.finito {
 div#data {
     float: left;
 }
+div#info {
+    color: pink;
+    text-transform: uppercase;
+}

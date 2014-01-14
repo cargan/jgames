@@ -195,13 +195,13 @@ var Board = {
           .addClass('activeWorm')
           .html(sign);
         Board.checkBubblesLeft();
-      } else if ($td.hasClass('activePcman')) {
+      } else if ($td.hasClass('activePacman')) {
         $td
           .addClass('worm')
           .addClass('activeWorm')
           .addClass('finito')
           .html(sign);
-        Game.finish();
+          Game.finish();
       } else {
         $td
           .addClass('worm')
@@ -210,7 +210,6 @@ var Board = {
       }
     },
     getHorizontalPosition: function(position, move) {
-       // var rowNumber = Math.ceil((position - 1)/ Board.horizontal);
        var colNumber = ((position - 1) % Board.horizontal)+1;
        var target = position + move;
         if ( (move > 0) && (colNumber == Board.horizontal) ) {
@@ -218,7 +217,6 @@ var Board = {
         } else if ( (move < 0) && (colNumber == 1) ) {
             return false;
         }
-
         return target;
     },
     getVerticalPosition: function(position, move) {
