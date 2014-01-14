@@ -30,16 +30,35 @@ var Game = {
     PcMan.start(Board.getEmptySquare());
     PathFinder.init(levelConfig.cross);
 
-    var Ai1 = new Ai(levelConfig.ai, Board.getEmptySquare());
-    Game.aiInterval = setInterval(function() {
-        var hunter      = Board.getCoordinates(Ai1.getPosition());
+	//ADD SECOND AI
+    var Ais = [];
+    Ais.push( new Ai(levelConfig.ai, Board.getEmptySquare()) );
+    Ais.push( new Ai(levelConfig.ai, Board.getEmptySquare()) );
+
+    Ais.forEach(function(item) {
+        Board.renderItem(item.getPosition(), item.getSign(), item.getId());
+    });
+
+    Ais.forEach(function(item) {
+        var hunter      = Board.getCoordinates(item.getPosition());
         var fish        = Board.getCoordinates(PcMan.getCurrentPosition());
         var coordinates = PathFinder.findPath(hunter, fish);
         var position    = Board.getPosition(coordinates);
-        Ai1.setPosition(position);
-        Board.moveAi(Ai1.getPosition(), Ai1.getSign());
+        Board.moveAi(item.getPosition(), position, item.getSign());
+        item.setPosition(position);
+    });
+
+
+    Game.aiInterval = setInterval(function() {
+      Ais.forEach(function(item) {
+        var hunter      = Board.getCoordinates(item.getPosition());
+        var fish        = Board.getCoordinates(PcMan.getCurrentPosition());
+        var coordinates = PathFinder.findPath(hunter, fish);
+        var position    = Board.getPosition(coordinates);
+        Board.moveAi(item.getPosition(), position, item.getSign());
+        item.setPosition(position);
+      });
     }, 400*2);
-    Board.renderItem(Ai1.getPosition(), Ai1.getSign(), Ai1.getId());
 
     Stats.start(Game.level);
     Game.started = true;

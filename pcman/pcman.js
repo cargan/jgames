@@ -115,8 +115,6 @@ $(document).ready(function(){
             Game.started && !Game.finished &&
             keys.indexOf(e.keyCode) != -1) {
             PcMan.moveItem(e.keyCode);
-        } else {
-console.log('negerai', Game.started ,Game.finished);
         }
     });
 

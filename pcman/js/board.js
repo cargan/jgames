@@ -101,6 +101,12 @@ var Board = {
         Board.checkBubblesLeft();
       }
     },
+    clearField: function(position) {
+      $(Board.table)
+        .find('td[data-number="'+position+'"]')
+        .removeClass()
+        .html('');
+    },
     checkBubblesLeft: function() {
       // if (Board.bublesOnTheBoard == Bubbles.numberBubbles) {
       if (Board.table.find('td.clickable').not('.clicked').length === 0) {
@@ -158,7 +164,6 @@ var Board = {
             pp = Board.getVerticalPosition(position, 1);
         }
 
-console.log(position, direction, sign, item, pp, Board.wall.indexOf(pp));
         if (!pp || Board.wall.indexOf(pp) != -1) {
             return false;
         }
@@ -172,10 +177,10 @@ console.log(position, direction, sign, item, pp, Board.wall.indexOf(pp));
         Board.checkBubblesLeft();
         return pp;
     },
-    moveAi: function(position, sign) {
-        Board.table
-        .find('td.activeWorm')
-        .removeClass('activeWorm')
+    moveAi: function(currentPosition, position, sign) {
+      $(Board.table)
+        .find('td[data-number="'+currentPosition+'"]')
+        .removeClass()
         .html('');
 
       var $td = Board.table
