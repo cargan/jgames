@@ -8,6 +8,27 @@ var Board = {
   init: function(table) {
     Board.table = $('#'+table);
   },
+  getWallMatrix: function() {
+      // var coordinates = [];
+      // this.wall.forEach(function(it) {
+      //     coordinates.push(Board.getCoordinates(it));
+      // });
+
+      var coo = [];
+      for(var k=1; k<=Board.vertical;k++) {
+          var it = [];
+          for(var i=1; i<=Board.horizontal;i++) {
+            var position = (k - 1 ) * Board.horizontal + i;
+            var value = 0;
+            if (Board.wall.indexOf(position) == -1 ) {
+                value = 1;
+            }
+            it.push(value);
+          }
+          coo.push(it);
+      }
+      return coo;
+  },
   start: function(data, bubbles) {
     Board._reset();
     Board._setValues(data);
@@ -138,7 +159,10 @@ var Board = {
       if ($td.data('buble')) {
         $td
           .removeAttr('data-buble')
-		}
+      } else if($td.hasClass('activeWorm')) {
+          $td.addClass('finito');
+          return Game.finish();
+      }
 
         $td.addClass(item)
 			.addClass('active'+Board.upperF(item))
@@ -149,9 +173,6 @@ var Board = {
         return item.charAt(0).toUpperCase() + item.slice(1);
     },
     moveItemDirection: function(position, direction, sign, item) {
-        var activeItem = 'td.active' + Board.upperF(item);
-        var $td = Board.table
-            .find(activeItem);
         pp = false;
         if (direction == 'left') {
             pp = Board.getHorizontalPosition(position, -1);
@@ -167,11 +188,12 @@ var Board = {
         if (!pp || Board.wall.indexOf(pp) != -1) {
             return false;
         }
+        var activeItem = 'td.active' + Board.upperF(item);
+        var $td = Board.table
+            .find(activeItem);
 
-        Board.table
-            .find(activeItem)
-            .removeClass('active' + Board.upperF(item))
-            .html('');
+        $td.removeClass('active' + Board.upperF(item))
+        .html('');
 
         Board.renderItem(pp, sign, item);
         Board.checkBubblesLeft();

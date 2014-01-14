@@ -66,7 +66,7 @@ var LevelConfig = {
       wallArround: true
     },
     timer: {
-      seconds: 20
+      seconds: 2220
     }
   },
   {

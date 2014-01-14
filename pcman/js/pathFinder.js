@@ -1,10 +1,14 @@
 var PathFinder = {
     grid: {},
     finder: {},
-    init: function(config) {
+    init: function(config, matrix) {
+        // matrix.forEach(function(item) {
+        //     console.log(item);
+        // });
         PathFinder.grid = new PF.Grid(
           config.horizontal,
-          config.vertical
+          config.vertical,
+          matrix
       );
       PathFinder.finder = new PF.AStarFinder();
     },
@@ -17,6 +21,7 @@ var PathFinder = {
           fish.y,
           grid
       );
+      console.log(path);
 
       if (path.length < 2) {
           return false;
@@ -28,5 +33,3 @@ var PathFinder = {
       }
     }
 };
-
-

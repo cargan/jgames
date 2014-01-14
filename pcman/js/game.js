@@ -31,21 +31,26 @@ var Game = {
     Board.start(levelConfig.cross, b.bubbles);
     Board.renderWall(levelConfig.wall);
     PcMan.start(Board.getEmptySquare());
-    PathFinder.init(levelConfig.cross);
+    PathFinder.init(levelConfig.cross, Board.getWallMatrix());
 
 	//ADD SECOND AI
-    var Ais = [];
+    Ais = [];
     Ais.push( new Ai(levelConfig.ai, Board.getEmptySquare()) );
     Ais.push( new Ai(levelConfig.ai, Board.getEmptySquare()) );
 
     Ais.forEach(function(item) {
         Board.renderItem(item.getPosition(), item.getSign(), item.getId());
     });
-    Game.aiInterval = setInterval(function() {
+
+   Game.aiInterval = setInterval(function() {
       Ais.forEach(function(item) {
         var hunter      = Board.getCoordinates(item.getPosition());
         var fish        = Board.getCoordinates(PcMan.getCurrentPosition());
         var coordinates = PathFinder.findPath(hunter, fish);
+        if (!coordinates) {
+            console.log('negavome coordinaciu', item, hunter, fish, coordinates);
+            return false;
+        }
         var position    = Board.getPosition(coordinates);
         Board.moveAi(item.getPosition(), position, item.getSign());
         item.setPosition(position);
