@@ -9,19 +9,14 @@ var Board = {
     Board.table = $('#'+table);
   },
   getWallMatrix: function() {
-      // var coordinates = [];
-      // this.wall.forEach(function(it) {
-      //     coordinates.push(Board.getCoordinates(it));
-      // });
-
       var coo = [];
       for(var k=1; k<=Board.vertical;k++) {
           var it = [];
           for(var i=1; i<=Board.horizontal;i++) {
             var position = (k - 1 ) * Board.horizontal + i;
-            var value = 0;
+            var value = 1;
             if (Board.wall.indexOf(position) == -1 ) {
-                value = 1;
+                value = 0;
             }
             it.push(value);
           }
@@ -106,6 +101,10 @@ var Board = {
         for (item in coordinates) {
             Board.wall = Board.wall.concat(coordinates[item].coordinates);
             coordinates[item].coordinates.forEach(function(entry) {
+            var coo = Board.getCoordinates(entry);
+                // console.log(entry, coo);
+            // PathFinder.setWalkable(coo.x, coo.y, false);
+            //     console.log(PathFinder.grid);
               $(Board.table)
                 .find('td[data-number="'+entry+'"]')
                 .addClass('wall')
@@ -113,6 +112,7 @@ var Board = {
                 .attr('data-wall', true);
             });
         }
+        // console.log(PathFinder);
     },
     click: function($item) {
       if ($item.data('buble') && !$item.hasClass('clicked')) {
@@ -254,8 +254,8 @@ var Board = {
 
     getCoordinates: function(position) {
         return {
-            x: ((position - 1) % Board.horizontal)+1,
-            y: Math.ceil((position - 1)/ Board.horizontal)
+            x: ((position - 1) % Board.horizontal),
+            y: Math.ceil((position)/ Board.horizontal) - 1
         };
     },
     getPosition: function(coordinates) {

@@ -2,9 +2,9 @@ var PathFinder = {
     grid: {},
     finder: {},
     init: function(config, matrix) {
-        // matrix.forEach(function(item) {
-        //     console.log(item);
-        // });
+        matrix.forEach(function(item) {
+            console.log(item);
+        });
         PathFinder.grid = new PF.Grid(
           config.horizontal,
           config.vertical,
@@ -21,7 +21,6 @@ var PathFinder = {
           fish.y,
           grid
       );
-      console.log(path);
 
       if (path.length < 2) {
           return false;
@@ -31,5 +30,8 @@ var PathFinder = {
         x: path[1][0],
         y: path[1][1]
       }
+    },
+    setWalkable: function(x, y, value) {
+        PathFinder.grid.setWalkableAt(x, y, value);
     }
 };
