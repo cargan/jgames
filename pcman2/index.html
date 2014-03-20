@@ -1,0 +1,262 @@
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Index</title>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script type="text/javascript" src="../../vendors/PathFinding.js/lib/pathfinding-browser.min.js"></script>
+
+        <style>
+            table.disabled {
+                background: gray;
+            }
+        </style>
+    </head>
+    <body>
+        <br />
+    <script type="text/javascript" charset="utf-8">
+    $( document ).ready(function() {
+
+        $.fn.filterByData = function(prop, val) {
+            return this.filter(
+                function() { return $(this).data(prop)==val; }
+            );
+        }
+
+        var LevelConfig = [{
+                board: [
+                    [0, 1, 0, 0, 0],
+                    [0, 1, 0, 1, 0],
+                    [0, 0, 0, 1, 0],
+                    [0, 1, 1, 1, 0],
+                    [0, 1, 0, 1, 0],
+                    [0, 0, 0, 0, 0],
+                ],
+                pcoordinates: {x: 4, y: 1},
+                hcoordinates: [{x: 0, y: 0}, {x: 0, y: 5}]
+            }, {
+                board: [
+                    [0, 0, 0, 0, 0, 0],
+                    [0, 0, 1, 0, 1, 0],
+                    [0, 0, 1, 0, 1, 0],
+                    [0, 0, 1, 0, 1, 0],
+                    [0, 0, 0, 0, 1, 0],
+                    [0, 0, 1, 0, 0, 0],
+                    [0, 0, 1, 0, 1, 0],
+                    [0, 0, 0, 0, 0, 0],
+                ],
+                pcoordinates: {x: 5, y: 0},
+                hcoordinates: [{x: 0, y: 0}, {x: 0, y: 7}, {x: 4, y: 4}]
+            }
+        ];
+
+        var makeGrid = function(matrix) {
+            grid = new PF.Grid(matrix[0].length, matrix.length, matrix);
+            finder = new PF.AStarFinder();
+        }
+
+        var getPath = function(hunter, fish) {
+            var gridBackup = grid.clone();
+            return finder.findPath(
+                hunter.x,
+                hunter.y,
+                fish.x,
+                fish.y,
+                gridBackup
+            );
+        }
+
+        //draw table
+        var tableId = 'pcTable';
+        var drawTable = function(matrix) {
+            $('table#'+tableId).html('');
+            var table = $('<table></table>').attr('id', tableId);
+            matrix.forEach(function(values, key) {
+                var row = $('<tr></tr>').data('row', key);
+                values.forEach(function(v, k) {
+                    var column = $('<td></td>').text(v);
+                    column.data({x: k, y: key});
+                    row.append(column);
+                });
+                table.append(row);
+            });
+            $('body').append(table);
+            $Board = $("table#" +tableId);
+        }
+
+        //draw
+        var drawItem = function(coordinates, sign) {
+            var item = $("table#" +tableId+ " td")
+                .filterByData('x', coordinates.x)
+                .filterByData('y', coordinates.y);
+            item.text(sign);
+        }
+
+        //hunter get to pcman
+        var moveHunter = function(moveCoordinates, hcoordinates, sign) {
+            var hunter = $("table#" +tableId+ " td")
+                .filterByData('x', hcoordinates.x)
+                .filterByData('y', hcoordinates.y);
+            hunter.text('0');
+
+            var hunter = $("table#" +tableId+ " td")
+                .filterByData('x', moveCoordinates.x)
+                .filterByData('y', moveCoordinates.y);
+            hunter.text(sign);
+        }
+
+        var checkEnd = function(pcMan, hunter) {
+            if (JSON.stringify(pcMan) === JSON.stringify(hunter)) {
+                console.log('THE END');
+                $Board.attr('disabled', 'disabled');
+                $Board.addClass('disabled');
+                return true;
+            }
+            return false;
+        }
+
+        //player move item
+        var movePcMan = function(code, coordinates, sign) {
+            var directions = {
+                37: 'left',
+                38: 'up',
+                39: 'right',
+                40: 'down'
+            };
+
+            var x = coordinates.x;
+            var y = coordinates.y;
+            var pcMan = $("table#" +tableId+ " td")
+                .filterByData('x', coordinates.x)
+                .filterByData('y', coordinates.y);
+            <!-- pcMan.text('0'); -->
+
+            switch (code) {
+                case 37:
+                    var tr = $Board.find('td').filterByData('x', x-1).filterByData('y', y);
+                    if (tr.length && tr.text() != 1) {
+                        pcMan.text(0);
+                        pcMan = $Board.find('td').filterByData('x', x-1).filterByData('y', y);
+                        pcMan.text(sign);
+                        return {x: x-1, y: y};
+                    }
+                    break;
+                case 38:
+                    var tr = $Board.find('td').filterByData('y', y-1).filterByData('x', x);
+                    if (tr.length && tr.text() != 1) {
+                        pcMan.text(0);
+                        pcMan = $Board.find('td').filterByData('y', y-1).filterByData('x', x);
+                        pcMan.text(sign);
+                        return {x: x, y: y-1};
+                    }
+                    break;
+                case 39:
+                    var tr = $Board.find('td').filterByData('x', x+1).filterByData('y', y);
+                    if (tr.length && tr.text() != 1 ) {
+                        pcMan.text(0);
+                        pcMan = $Board.find('td').filterByData('x', x+1).filterByData('y', y);
+                        pcMan.text(sign);
+                        return {x: x+1, y: y};
+                    }
+                    break;
+                case 40:
+                    var tr = $Board.find('td').filterByData('y', y+1).filterByData('x', x);
+                    if (tr.length && tr.text() != 1 ) {
+                        pcMan.text(0);
+                        pcMan = $Board.find('td').filterByData('y', y+1).filterByData('x', x);
+                        pcMan.text(sign);
+                        return {x: x, y: y+1};
+                    }
+                    break;
+            }
+            return {x: x, y: y};
+        };
+
+        $('body').keydown(function(e) {
+            var keys = [37, 38, 39, 40];
+            if ( keys.indexOf(e.keyCode) != -1 ) {
+                Game.movePcMan(e.keyCode);
+            }
+        });
+
+
+        var Game = {
+            started: null,
+            finished: null,
+            level: null,
+            pcMan: null,
+            hunters: [],
+            huntersInterval: null,
+            start: function() {
+                Game.level = getLevelConfig();
+                if (!Game.level) {
+                    console.log('AMEN');
+                    return;
+                }
+                Game.started = true;
+                Game.finished = false;
+                makeGrid(Game.level.board);
+                drawTable(Game.level.board);
+                drawItem(Game.level.pcoordinates, '*');
+                Game.pcMan = Game.level.pcoordinates;
+                Game.level.hcoordinates.forEach(function(val, key) {
+                    drawItem(val, '-');
+                    Game.hunters.push(val);
+                });
+
+                Game.huntersInterval = setInterval(
+                    function() {
+                        Game.hunters.forEach(function(val, key) {
+                            var path = getPath(val, Game.pcMan);
+                            if (path.length <= 1) {
+                                Game.end();
+                            }
+
+                            var currentP = path.splice(0, 1);
+                            var coordinates = path.splice(0, 1)[0];
+                            var m = {
+                                x: coordinates[0],
+                                y: coordinates[1]
+                            };
+                            moveHunter(m, val, '-')
+                            Game.hunters[key] = m;
+
+                            checkEnd(Game.pcMan, m) ? Game.end() : false;
+                        });
+                    },
+                    800
+                );
+
+            },
+            movePcMan: function(code) {
+               if (!Game.finished) {
+                   Game.pcMan = movePcMan(code, Game.pcMan, '*');
+                   Game.hunters.forEach(function(val, key) {
+                       checkEnd(Game.pcMan, val) ? Game.end() : null;
+                   })
+               }
+            },
+            end: function() {
+                Game.started = false;
+                Game.finished = true;
+                clearInterval(Game.huntersInterval);
+                Game.nextLevel();
+            },
+            nextLevel: function() {
+                Game.start();
+            }
+        };
+
+        var getLevelConfig = function() {
+            return LevelConfig.splice(0, 1)[0];
+        }
+
+        Game.start();
+
+    });
+
+function getRandomInt (min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+    </script>
+    </body>
+</html>
